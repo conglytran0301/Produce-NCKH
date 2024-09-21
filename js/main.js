@@ -494,7 +494,7 @@ loginButton.addEventListener('click', () => {
 })
 
 // Kiểm tra xem có tài khoản đăng nhập không ?
-function kiemtradangnhap() {
+/*function kiemtradangnhap() {
     let currentUser = localStorage.getItem('currentuser');
     if (currentUser != null) {
         let user = JSON.parse(currentUser);
@@ -530,7 +530,42 @@ function checkAdmin() {
 }
 
 window.onload = kiemtradangnhap();
-window.onload = checkAdmin();
+window.onload = checkAdmin();*/
+
+import { Auth } from 'aws-amplify';
+
+async function kiemtradangnhap() {
+    try {
+        const user = await Auth.currentAuthenticatedUser();
+        console.log("User: ", user);
+        // Hiển thị menu sau khi đăng nhập thành công
+        showUserInfo(user.attributes);
+    } catch (error) {
+        console.log("Chưa đăng nhập");
+    }
+}
+
+function showUserInfo(userAttributes) {
+    document.querySelector('.auth-container').innerHTML = `<span class="text-dndk">Tài khoản</span>
+        <span class="text-tk">${userAttributes.name} <i class="fa-sharp fa-solid fa-caret-down"></i></span>`;
+    document.querySelector('.header-middle-right-menu').innerHTML = `<li><a href="javascript:;" onclick="myAccount()"><i class="fa-light fa-circle-user"></i> Tài khoản của tôi</a></li>
+        <li><a href="javascript:;" onclick="orderHistory()"><i class="fa-regular fa-bags-shopping"></i> Đơn hàng đã mua</a></li>
+        <li class="border"><a id="logout" href="javascript:;"><i class="fa-light fa-right-from-bracket"></i> Thoát tài khoản</a></li>`;
+    document.querySelector('#logout').addEventListener('click', logOut);
+}
+
+async function logOut() {
+    try {
+        await Auth.signOut();
+        window.location = "/";
+    } catch (error) {
+        console.log('Error signing out: ', error);
+    }
+}
+
+// Gọi khi trang tải
+window.onload = kiemtradangnhap;
+
 
 // Chuyển đổi trang chủ và trang thông tin tài khoản
 function myAccount() {
